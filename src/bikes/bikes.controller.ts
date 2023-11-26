@@ -7,31 +7,34 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { BikesService } from './bikes.service';
 
 @Controller('bikes')
 export class BikesController {
+  constructor(private readonly bikesService: BikesService) {}
+
   @Get()
   findAll() {
-    return 'Return bikes';
+    return this.bikesService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return `return #${id} bike`;
+    return this.bikesService.findOne(id);
   }
 
   @Post()
   create(@Body() body) {
-    return body;
+    return this.bikesService.create(body);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() body) {
-    return `update #${id} bike, ${JSON.stringify(body)}`;
+    return this.bikesService.update(id, body);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return `remove #${id} bike`;
+    return this.bikesService.remove(id);
   }
 }
