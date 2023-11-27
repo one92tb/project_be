@@ -1,5 +1,4 @@
-export class UpdateBikeDto {
-  readonly name?: string;
-  readonly type?: string;
-  readonly colors?: string[];
-}
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateBikeDto } from './create-bike.dto';
+
+export class UpdateBikeDto extends PartialType(CreateBikeDto) {}

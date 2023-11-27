@@ -29,6 +29,8 @@ export class BikesService {
 
   create(createBikeDto: any) {
     this.bikes.push(createBikeDto);
+
+    return createBikeDto;
   }
 
   update(id: string, updateBikeDto: any) {
