@@ -1,51 +1,51 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Bike } from './entities/bike.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateBikeDto } from './dto/create-bike.dto';
+import { UpdateBikeDto } from './dto/update-bike.dto';
 
 @Injectable()
 export class BikesService {
-  private bikes: Bike[] = [
-    {
-      id: 1,
-      colors: [],
-      name: 'Merida',
-      type: 'gravel',
-    },
-  ];
+  constructor(
+    @InjectRepository(Bike)
+    private readonly bikeRepository: Repository<Bike>,
+  ) {}
 
   findAll() {
-    return this.bikes;
+    return this.bikeRepository.find();
   }
 
-  findOne(id: string) {
-    const bike = this.bikes.find((bike) => bike.id === +id);
+  async findOne(id: string) {
+    const bike = await this.bikeRepository.findOne({ where: { id: +id } });
 
     if (!bike) {
-      // throw new HttpException(`Bike #${id} not found`, HttpStatus.NOT_FOUND);
       throw new NotFoundException(`Bike #${id} not found`);
     }
 
     return bike;
   }
 
-  create(createBikeDto: any) {
-    this.bikes.push(createBikeDto);
-
-    return createBikeDto;
+  create(createBikeDto: CreateBikeDto) {
+    const bike = this.bikeRepository.create(createBikeDto);
+    return this.bikeRepository.save(bike);
   }
 
-  update(id: string, updateBikeDto: any) {
-    const existingBike = this.findOne(id);
+  async update(id: string, updateBikeDto: UpdateBikeDto) {
+    const bike = await this.bikeRepository.preload({
+      id: +id,
+      ...updateBikeDto,
+    });
 
-    if (existingBike) {
-      //update
+    if (!bike) {
+      throw new NotFoundException(`Bike #${id} not  found`);
     }
+
+    return this.bikeRepository.save(bike);
   }
 
-  remove(id: string) {
-    const bikeIndex = this.bikes.findIndex((bike) => bike.id === +id);
-
-    if (bikeIndex) {
-      this.bikes.splice(bikeIndex, 1);
-    }
+  async remove(id: string) {
+    const bike = await this.findOne(id);
+    return this.bikeRepository.remove(bike);
   }
 }
